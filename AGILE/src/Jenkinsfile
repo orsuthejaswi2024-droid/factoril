@@ -18,7 +18,7 @@ pipeline {
             steps {
                 bat 'kubectl apply -f AGILE/k8s/deployment.yaml'
                 bat 'kubectl apply -f AGILE/k8s/service.yaml'
-                bat 'kubectl rollout status deployment/github-nginx --timeout=180s'
+                bat 'kubectl rollout status deployment/myapp --timeout=180s'
             }
         }
 
