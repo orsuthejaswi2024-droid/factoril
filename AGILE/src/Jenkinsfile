@@ -14,6 +14,13 @@ pipeline {
             }
         }
 
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t myapp:latest -f AGILE/src/dockerfile AGILE/src'
+                bat 'minikube image load myapp:latest'
+            }
+        }
+
         stage('Deploy Application') {
             steps {
                 bat 'kubectl apply -f AGILE/k8s/deployment.yaml'
@@ -31,3 +38,4 @@ pipeline {
         }
     }
 }
+
