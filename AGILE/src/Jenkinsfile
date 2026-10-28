@@ -1,42 +1,33 @@
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+pipeline {
+    agent any
 
-    <modelVersion>4.0.0</modelVersion>
+    environment {
+        KUBECONFIG = 'C:\\Users\\orsut\\.kube\\config'
+        PATH = "C:\\Users\\orsut\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
+    }
 
-    <groupId>com.example</groupId>
-    <artifactId>factorial</artifactId>
-    <version>1.0</version>
+    stages {
+        stage('Check Kubernetes') {
+            steps {
+                bat 'kubectl get nodes'
+            }
+        }
 
-    <properties>
-        <maven.compiler.release>17</maven.compiler.release>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+        stage('Deploy Application') {
+            steps {
+                bat 'kubectl apply -f AGILE/k8s/deployment.yaml'
+                bat 'kubectl apply -f AGILE/k8s/service.yaml'
+                bat 'kubectl rollout status deployment/github-nginx --timeout=180s'
+            }
+        }
 
-    <build>
-        <sourceDirectory>src</sourceDirectory>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.2</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>Factorial</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-</project>
+        stage('Verify Deployment') {
+            steps {
+                bat 'kubectl get deployments'
+                bat 'kubectl get pods'
+                bat 'kubectl get services'
+            }
+        }
+    }
+}
